@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  role     String   
+}
+
+model Wedding {
+  id                     Int      @id @default(autoincrement())
+  groomName              String
+  groomMotherName        String
+  groomFatherName        String
+  groomAddress           String
+  brideName              String
+  brideMotherName        String
+  brideFatherName        String
+  brideAddress           String
+  akadDate               DateTime
+  akadTime               String
+  akadLocation           String
+  akadGoogleMapLink      String
+  resepsiDate            DateTime
+  resepsiTime            String
+  resepsiLocation        String
+  resepsiGoogleMapLink   String
+}
+
+model Invitation {
+  id        Int                  @id @default(autoincrement())
+  name      String
+  presence  Int
+  code      String @unique
+  greetings InvitationGreeting[]
+  donations Donation[]
+}
+
+model InvitationGreeting {
+  id             Int         @id @default(autoincrement())
+  greeting       String
+  invitationId   Int
+  invitation     Invitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId]) 
+}
+
+model Donation {
+  id           Int       @id @default(autoincrement())
+  nominal      Int
+  bankId       Int
+  invitationId Int
+  bank         Bank      @relation(fields: [bankId], references: [id], onDelete: Cascade)
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([bankId])       
+  @@index([invitationId]) 
+}
+
+model Bank {
+  id            Int        @id @default(autoincrement())
+  name          String
+  accountNumber Int
+  recipient     String
+  donations     Donation[]
+}
